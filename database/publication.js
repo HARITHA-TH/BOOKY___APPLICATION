@@ -9,7 +9,7 @@ const PublicationSchema = mongoose.Schema({
 });
 
 //create a book model
-const PublicationModel = mongoose.model("PublicationSchema");
+const PublicationModel = mongoose.model("publications","PublicationSchema");
 
 //export book model
 module.exports = PublicationModel;
