@@ -1,11 +1,26 @@
+
+require("dotenv").config();
 const express = require("express");
+const mongoose = require("mongoose");
 //include ur database file
-const database = require("./database");
+const database = require("./database/index");
 //initialisation
 const booky = express();
 //configuration
 booky.use(express.json()); //while passing json data u should include this statement
 
+//establish database connection
+mongoose.connect(process.env.MONGO_URL, //to maintain sensitive data
+  {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+    useFindAndModify: false,
+    useCreateIndex: true,
+  }
+)
+.then(() => console.log("connection established!!!"));
+
+//to ensure security we use dotenv.mongoDB contain sensitive data.this is need to store in environment variable and injected during runtym
 /*Route            /
   description      to get all books
   acess            public
@@ -448,3 +463,10 @@ booky.delete("/publication/delete/book/:isbn/:pubId", (req,res) => {
 */
 
 booky.listen(3000,() => console.log("hey,server is running")); //whenever the server start succesfuly function is called and log that statement
+
+
+//someone to talk to mongoDB and someone to talk to us
+// that is mongoose
+//mongoDB all abt async
+//support promises and callback
+//install mongoose---> npm i mongoose
