@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGO_URL, //to maintain sensitive data
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
-    useFindAndModify: false,
+    useFindAndModify: false,                   ////mongoose is a library to connect to mongoDB
     useCreateIndex: true,
   }
 )
