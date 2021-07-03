@@ -407,7 +407,7 @@ booky.put("/book/update/title/:isbn", (req,res) => {
 
 
 booky.put("/book/update/title/:isbn", async (req,res) => {
-    const updatedBooks = await BookModel.findOneAndUpdate(
+    const updatedBook = await BookModel.findOneAndUpdate(
         {
             ISBN: req.params.isbn,     //find book using isbn
         },
@@ -418,31 +418,62 @@ booky.put("/book/update/title/:isbn", async (req,res) => {
             new: true,                   //specifically tell mongoDB to update data
         }
         );
-        return res.json({books: updatedBooks});
+        return res.json({books: updatedBook});
     });
     
 
 /*Route            /book/update/author
-  description      update book author
+  description      pdate/add new author
   acess            public
-  parameter        isbn authorid
+  parameter        isbn 
   methods          PUT
-*/
+
 
 booky.put("/book/update/author/:isbn/:authorId" , (req,res) => {
     //update book database
     database.books.forEach((book) => {
         if(book.ISBN === req.params.isbn){
-            return book.author.push(parseInt(req.params.authorId));
+            return book.author.push(req.params.newAuthor);
         }
     });
     //update author database
     database.authors.forEach((author) => {
-        if(author.id === req.params.authorId) {
-            return author.books.push(parseInt(req.params.authorId));
+        if(author.id === req.body.newAuthor) {
+            return author.books.push(req.params.isbn);
         }
     });
     return res.json({books: database.books, authors:database.authors});
+});  */
+
+booky.put("/book/update/author/:isbn" , async(req,res) => {
+    const updatedBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN: req.params.isbn,
+    },
+    {
+        $addToSet:{
+            author: req.body.newAuthor,
+        }
+    },
+    {
+        new:true
+    }
+);
+
+const updatedAuthor = await AuthorModel.findOneAndUpdate(
+    {
+        id: req.body.newAuthor,
+},
+{
+    $addToSet:{
+        books: req.params.isbn,
+    }
+},
+{
+    new:true
+}
+);
+return res.json({books: updatedBook, authors:updatedAuthor});
 });
 
 /*Route            /book/update/authorname
