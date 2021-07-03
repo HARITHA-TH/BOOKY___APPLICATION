@@ -5,23 +5,22 @@ const mongoose = require("mongoose");
 //include ur database file
 const database = require("./database/index");
 //models
-const BookModels = require("./database/book");
-const AuthorModels = require("./database/author");
-const PublicationModels = require("./database/publication");
+const BookModel = require("./database/book");
+const AuthorModel = require("./database/author");
+const PublicationModel = require("./database/publication");
 //initialisation
 const booky = express();
 //configuration
 booky.use(express.json()); //while passing json data u should include this statement
 
+console.log(process.env.MONGO_URL);
 //establish database connection
-mongoose.connect(process.env.MONGO_URL, //to maintain sensitive data
-  {
+mongoose.connect(process.env.MONGO_URL,{ //to maintain sensitive data
     useNewUrlParser: true,
     useUnifiedTopology: true,
     useFindAndModify: false,                   ////mongoose is a library to connect to mongoDB
     useCreateIndex: true,
-  }
-)
+  })
 .then(() => console.log("connection established!!!"));
 
 //to ensure security we use dotenv.mongoDB contain sensitive data.this is need to store in environment variable and injected during runtym
@@ -32,9 +31,16 @@ mongoose.connect(process.env.MONGO_URL, //to maintain sensitive data
   methods          get
 */
 
-booky.get("/", (req,res) =>{      //api to get all books
+/*booky.get("/", (req,res) =>{      //api to get all books
     return res.json({books: database.books});
-});
+}); */
+
+booky.get("/", async (req,res) =>{
+    const getAllBooks = await BookModel.find();    //api to get all books
+        return res.json(getAllBooks);
+    });     
+    
+
 
 
 
@@ -46,7 +52,7 @@ booky.get("/", (req,res) =>{      //api to get all books
 */
 
 
-booky.get("/is/:isbn",(req,res) =>{
+/*booky.get("/is/:isbn",(req,res) =>{
     const getSpecificBook = database.books.filter( //need to filter array books
         (book) => book.ISBN === req.params.isbn  
      );
@@ -56,6 +62,19 @@ booky.get("/is/:isbn",(req,res) =>{
          });
      }
         return res.json({data:getSpecificBook});
+}); */
+
+booky.get("/is/:isbn",async(req,res) => {
+    const getSpecificBook = await BookModel.findOne({ISBN : req.params.isbn});
+    //null return false and that is coverted to true
+    if(!getSpecificBook){
+        return res.json({
+            error: `no book found for ISBN of ${req.params.isbn}`,
+        });
+    }
+       return res.json({data:getSpecificBook});
+
+
 });
 
 /*Route            /c
@@ -65,11 +84,27 @@ booky.get("/is/:isbn",(req,res) =>{
   methods          get
 */
 
-booky.get("/c/:category",(req,res) =>{
+/*booky.get("/c/:category",(req,res) =>{
     const getSpecificBook = database.books.filter((book) =>
         books.category.includes(req.params.category) //compare each and every element if match found return true
     );
     if(getSpecificBook.length ===0){
+        return res.json({
+            error: `no book found for this category of ${req.params.category}`,
+        });
+    }
+       return res.json({books:getSpecificBook});
+
+});*/
+
+
+
+booky.get("/c/:category",async(req,res) =>{
+    const getSpecificBook = await BookModel.findOne({
+        category : req.params.category,
+    });
+         //compare each and every element if match found return true
+    if(!getSpecificBook){
         return res.json({
             error: `no book found for this category of ${req.params.category}`,
         });
@@ -85,7 +120,7 @@ booky.get("/c/:category",(req,res) =>{
   methods          get
 */
 
-booky.get("/l/:language",(req,res) =>{
+/*booky.get("/l/:language",(req,res) =>{
     const getSpecificBook = database.books.filter(
         (book) => book.language === req.params.language
     );
@@ -96,6 +131,20 @@ booky.get("/l/:language",(req,res) =>{
     }
        return res.json({data:getSpecificBook});
 
+}); */
+
+booky.get("/l/:language",async(req,res) =>{
+    const getSpecificBook = await BookModel.findOne({
+        language : req.params.language,
+    });
+         //compare each and every element if match found return true
+    if(!getSpecificBook){
+        return res.json({
+            error: `no book found for this language of ${req.params.language}`,
+        });
+    }
+       return res.json({books:getSpecificBook});
+
 });
 
 /*Route            /author
@@ -105,12 +154,16 @@ booky.get("/l/:language",(req,res) =>{
   methods          get
 */
 
-booky.get("/author", (req,res) =>{      //api to get all books
+/*booky.get("/author", (req,res) =>{      //api to get all books
     return res.json({authors: database.authors});
+}); */
+
+booky.get("/author", async(req,res) =>{ 
+    const getAllAuthors = await AuthorModel.find();
+    return res.json({authors: getAllAuthors});
 });
 
-
-/*Route            /author
+/*Route            /author/id
   description      to get specific author based on id
   acess            public
   parameter        isbn
@@ -118,7 +171,7 @@ booky.get("/author", (req,res) =>{      //api to get all books
 */
 
 
-booky.get("/author/id/:id",(req,res) =>{
+/*booky.get("/author/id/:id",(req,res) =>{
     const getSpecificAuthor = database.authors.filter(
         (authors) => authors.id === parseInt(req.params.id));
     if(getSpecificAuthor.length===0) {
@@ -127,8 +180,20 @@ booky.get("/author/id/:id",(req,res) =>{
         });
     }
     return res.json({authors: getSpecificAuthor});
-});
+});    */
 
+booky.get("/author/id/:id",async(req,res) => {
+    const getSpecificAuthor = await AuthorModel.findOne({id : req.params.id});
+    //null return false and that is coverted to true
+    if(!getSpecificAuthor){
+        return res.json({
+            error: `no author found for id of ${req.params.id}`,
+        });
+    }
+       return res.json({data:getSpecificAuthor});
+
+
+});
 
 
 /*Route            /author/book
@@ -139,7 +204,7 @@ booky.get("/author/id/:id",(req,res) =>{
 */
 
 
-booky.get("/author/book/:isbn",(req,res) =>{
+/*booky.get("/author/book/:isbn",(req,res) =>{
     const getSpecificAuthor = database.authors.filter( (authors) =>//need to filter array books
          authors.books.includes(req.params.isbn)
      );
@@ -149,6 +214,17 @@ booky.get("/author/book/:isbn",(req,res) =>{
          });
      }
         return res.json({authors:getSpecificAuthor});
+});   */
+
+
+  booky.get("/author/book/:isbn", async (req,res) => {
+    const getSpecificAuthor = await AuthorModel.find({books: {$in: req.params.isbn}});
+
+    if(!getSpecificAuthor){
+        return res.json(
+        {error: `No author found for the book of ${req.params.isbn}`});
+    }
+    return res.json({authors: getSpecificAuthor});
 });
 
 
@@ -159,9 +235,15 @@ booky.get("/author/book/:isbn",(req,res) =>{
   methods          get
 */
 
-booky.get("/publications", (req,res) => {      
+/* booky.get("/publications", (req,res) => {      
     return res.json({publications: database.publications});
+}); */
+
+booky.get("/publications", async(req,res) =>{ 
+    const getAllPublications = await PublicationModel.find();
+    return res.json({authors: getAllPublications});
 });
+
 
 
 //nodemon restart ur nodejs server
@@ -177,7 +259,7 @@ booky.get("/publications", (req,res) => {
   methods          get
 */
 
-booky.get("/publications/id/:id", (req,res) => {
+/*  booky.get("/publications/id/:id", (req,res) => {
     const getSpecificPublications = database.publications.filter(
         (publications) => publications.id === parseInt(req.params.id)
     );
@@ -187,17 +269,33 @@ booky.get("/publications/id/:id", (req,res) => {
      } 
 
      return res.json({publications:getSpecificPublications});
+});  */
+
+
+booky.get("/publications/id/:id",async(req,res) => {
+    const getSpecificPublication = await PublicationModel.findOne({id : req.params.id});
+    //null return false and that is coverted to true
+    if(!getSpecificPublication){
+        return res.json({
+            error: `no author found for id of ${req.params.id}`,
+        });
+    }
+       return res.json({data:getSpecificPublication});
+
+
 });
 
+
+
 /*Route            /publications/book
-  description      to get list of authors based on books
+  description      to get list of publications based on books
   acess            public
   parameter        isbn
   methods          get
 */
 
 
-booky.get("/publications/book/:isbn",(req,res) =>{
+/* booky.get("/publications/book/:isbn",(req,res) =>{
     const getSpecificPublications = database.publications.filter( (publications) =>
          publications.books.includes(req.params.isbn)
      );
@@ -207,9 +305,17 @@ booky.get("/publications/book/:isbn",(req,res) =>{
          });
      }
         return res.json({publications:getSpecificPublications});
+}); */
+
+booky.get("/publications/book/:isbn", async (req,res) => {
+    const getSpecificPlublication = await PublicationModel.find({books:{$in: req.params.isbn}});
+
+    if(!getSpecificPlublication){
+        return res.json(
+        {error: `No publication found for the book of ${req.params.isbn}`});
+    }
+    return res.json(getSpecificPlublication);
 });
-
-
 //browser can only perform GET method
 //HTTP Request --> it is a helper to make http request
 //POSTMAN it is a free source who guid to do API and it is a tool
@@ -223,10 +329,16 @@ booky.get("/publications/book/:isbn",(req,res) =>{
 */
 
 
-booky.post("/book/add", (req,res) => {
+/*booky.post("/book/add", (req,res) => {
     const {newBook} = req.body;
     database.books.push(newBook);
     return res.json({books: database.books});
+}); */
+
+booky.post("/book/add", async(req,res) => {
+    const {newBook} = req.body;
+    const addNewBook = BookModel.create(newBook);
+    return res.json({books: addNewBook });
 });
 
 
@@ -238,10 +350,16 @@ booky.post("/book/add", (req,res) => {
 */
 
 
-booky.post("/author/add", (req,res) => {
+/*booky.post("/author/add", (req,res) => {
     const {newAuthor} = req.body;
     database.authors.push(newAuthor);
     return res.json({authors: database.authors});
+});*/
+
+booky.post("/author/add", async(req,res) => {
+    const {newAuthor} = req.body;
+    AuthorModel.create(newAuthor);
+    return res.json({message : "author was added"});
 });
 
 /*Route            /publications/add
@@ -252,10 +370,17 @@ booky.post("/author/add", (req,res) => {
 */
 
 
-booky.post("/publications/add", (req,res) => {
+/*booky.post("/publications/add", (req,res) => {
     const {newPublication} = req.body;
     database.publications.push(newPublication);
     return res.json({publications: database.publications});
+}); */
+
+
+booky.post("/publication/add", async(req,res) => {
+    const {newPublication} = req.body;
+    PublicationModel.create(newPublication);
+    return res.json({message : "publication was added"});
 });
 
 //foreach update required data
@@ -269,7 +394,7 @@ booky.post("/publications/add", (req,res) => {
   acess            public
   parameter        isbn
   methods          PUT
-*/
+
 booky.put("/book/update/title/:isbn", (req,res) => {
     database.books.forEach((book) =>{
         if(book.ISBN === req.params.isbn){
@@ -278,8 +403,24 @@ booky.put("/book/update/title/:isbn", (req,res) => {
         }
     });
     return res.json({books: database.books});
-});
+});    */
 
+
+booky.put("/book/update/title/:isbn", async (req,res) => {
+    const updatedBooks = await BookModel.findOneAndUpdate(
+        {
+            ISBN: req.params.isbn,     //find book using isbn
+        },
+        {
+            title: req.body.bookTitle,   //then update title
+        },
+        {
+            new: true,                   //specifically tell mongoDB to update data
+        }
+        );
+        return res.json({books: updatedBooks});
+    });
+    
 
 /*Route            /book/update/author
   description      update book author

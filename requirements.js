@@ -39,7 +39,7 @@ const { books } = require("./database")
   ////////PUT////////
 
   //update book title
-  //pdate/add new author
+  //update/add new author
 
   //////DELETE///////
 
@@ -53,7 +53,7 @@ const { books } = require("./database")
    //we need an API
    //to get all authors
    //to get specific authors based on id
-   //to get list of authors based on books
+   //to get list of authors based on books xxxxxxxxxxxxxxxxx
 
 
    ///////POST////////////
@@ -75,7 +75,7 @@ const { books } = require("./database")
    //we need an API
    //to get all publications
    //to get specific publications based on id
-   //to get list of publications based on book
+   //to get list of publications based on book xxxxxxxxxx
 
    /////////POST//////////
 
