@@ -541,7 +541,7 @@ booky.put("/publication/update/book/:isbn", (req,res) => {
   acess            public
   parameter        isbn
   methods          DELETE
-*/
+
 
 booky.delete("/book/delete/:isbn", (req,res) => {
     const updatedBookDatabase = database.books.filter( //filter return new aqrray
@@ -550,14 +550,23 @@ booky.delete("/book/delete/:isbn", (req,res) => {
 
     database.books = updatedBookDatabase;    //updatedBookDatabase is new database after deleting .for that we change variable of books database to let
     return res.json({books: database.books});
+});    */
+
+booky.delete("/book/delete/:isbn", async (req,res) => {
+    const updatedBookDatabase = await BookModel.findOneAndDelete(
+        {
+            ISBN: req.params.isbn,
+        });
+        return res.json({books: updatedBookDatabase});
 });
+
 
 /*Route            /book/delete/author
   description      delete a author from book
   acess            public
   parameter        isbn authorId
   methods          DELETE
-*/
+
 
 booky.delete("/book/delete/author/:isbn/:authorId", (req,res) =>{
     database.books.forEach((book) => {
@@ -583,7 +592,43 @@ booky.delete("/book/delete/author/:isbn/:authorId", (req,res) =>{
         
     });
     return res.json({books: database.books, authors: database.authors,message:"successfully deleted"});
+});   */
+
+
+booky.delete("/book/delete/author/:isbn/:authorId", async (req,res) =>  {
+    const updatedBook = await BookModel.findOneAndUpdate(
+        {
+            ISBN: req.params.isbn,
+        },
+        {
+            $pull: {
+                author: parseInt(req.params.authorId),
+            }
+        },
+        {
+            new: true
+        }
+        );
+
+
+        const updatedAuthor = await AuthorModel.findOneAndUpdate(
+            {
+                id: parseInt(req.params.authorId),
+            },
+            {
+                $pull:{
+                    books: req.params.isbn,
+                },
+            },
+            {
+                new: true
+            }
+            );
+        return res.json({message: "added successfully", book: updatedBook, author: updatedAuthor});    
 });
+
+    
+
 
 /*Route            /author/delete
   description      delete an author
