@@ -16,7 +16,7 @@ let books = [                    //array of objects
         language: "en",
         numpage: "255",
         author: [1],
-        publications: 1,
+        publications: [1],
         category: ["education","thriller"],
     },
 ];
