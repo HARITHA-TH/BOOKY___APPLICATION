@@ -141,9 +141,13 @@ Router.get("/l/:language",async(req,res) =>{
 }); */
 
 Router.post("/add", async(req,res) => {
+    try{
     const {newBook} = req.body;
-    const addNewBook = BookModel.create(newBook);
-    return res.json({books: addNewBook });
+    await BookModel.create(newBook);
+    return res.json({books: "book was added" });
+    } catch (error) {
+        return res.json({error: error.message});
+    }
 });
 
 /*Route            /book/update/author

@@ -42,7 +42,7 @@ booky.use("/publication",Publications);
 
     
 
-
+booky.listen(3000,() => console.log("hey,server is running")); //whenever the server start succesfuly function is called and log that statement
 
 
 

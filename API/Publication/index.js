@@ -301,7 +301,8 @@ Router.delete("/delete/:publicationId", async (req,res) => {
         });
         return res.json({publications: updatedPublicationDatabase});
 });
-Router.listen(3000,() => console.log("hey,server is running")); //whenever the server start succesfuly function is called and log that statement
+
+
 
 
 //someone to talk to mongoDB and someone to talk to us
